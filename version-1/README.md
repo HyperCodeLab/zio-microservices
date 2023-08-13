@@ -2,7 +2,7 @@
 
 Initial version of the Application built for the post: Introduction to Scala ZIO.
 
-Medium post: [placeholder]()
+Medium post: [An Introduction to ZIO](https://medium.com/p/4f2ec4cae8b7)
 
 ## Content
 
