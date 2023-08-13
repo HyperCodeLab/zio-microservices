@@ -7,7 +7,7 @@ import zio.json._
 object UserTest extends ZIOSpecDefault {
 
   def spec = {
-    suite("Challenge Encoder / Decoding")(
+    suite("User Encoder / Decoding")(
       test("converts from class to json") {
         assertTrue(User("Test1").toJson == """{"alias":"Test1"}""")
       },

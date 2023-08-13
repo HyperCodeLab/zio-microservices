@@ -1,9 +1,13 @@
 package ziomicroservices.challenge.service
 
 import zio._
-import ziomicroservices.challenge.model.Challenge
+import ziomicroservices.challenge.model._
 
 case class ChallengeServiceImpl(randomGeneratorService: RandomGeneratorService) extends ChallengeService:
+
+  def checkAttempt(attempt: ChallengeAttempt): Task[Boolean] = {
+    ZIO.succeed(attempt.challenge.valueA * attempt.challenge.valueB == attempt.resultAttempt)
+  }
 
   def createRandomMultiplication(): ZIO[Any, Nothing, Challenge] = {
     for {
