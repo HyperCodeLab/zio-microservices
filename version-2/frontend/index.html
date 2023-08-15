@@ -1,0 +1,70 @@
+<html>
+
+    <body>
+    
+        <div>
+            <span id="elementA"></span> x <span id="elementB"></span>
+        </div>  
+        <div>
+            <form id="attempt-form" action="#" method="POST">
+                <div class="form-group">
+                    <label for="result-attempt">Result?</label>
+                    <input type="text" name="result-attempt" id="result-attempt" class="form-control">
+                </div>
+                <span class="input-group-append">
+                    <button type="submit" class="btn btn-light" data-name="register" onclick="formSubmit(event)">Check!</button>
+                </span>
+            </form>
+        </div>
+        <div>
+            Correct:  <span id = "correct">0</span>
+        </div>
+
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.2/jquery.min.js" integrity="sha512-tWHlutFnuG0C6nQRlpvrEhE4QpkG1nn2MOUMWmUeRePl4e3Aki0VB6W1v3oLjFtd0hVOtRQ9PHpSfN6u6/QXkQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+        <script>
+            var SERVER_URL = "http://localhost:8080";
+
+            var count = 0;
+
+            function getData() {
+                $.get(SERVER_URL + "/challenges/random", (data, status) => {
+                    $("#elementA").text(data['valueA'])
+                    $("#elementB").text(data['valueB'])
+                });
+            }
+
+
+            function formSubmit(e){
+                e.preventDefault();
+
+                var attempt = $('#result-attempt').val();
+                var data = { user: { alias: "Test"}, challenge: {valueA: d['valueA'], valueB: d['valueB']}, resultAttempt: parseInt(attempt)};
+
+                $.ajax({
+                    url: SERVER_URL + '/challenges/attempt',
+                    type: 'POST',
+                    data: JSON.stringify(data),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    async: false,
+                    success: function(result){
+                        console.log(result);
+                        if (result == true) {
+                            count += 1;
+                        }
+                    }
+                    });
+                
+                $('#correct').html(count);
+                getData();
+            }
+
+            getData();
+
+        </script>
+
+    </body>
+
+</html>

@@ -5,6 +5,9 @@ import zio.json._
 import zio.http._
 import ziomicroservices.challenge.model._
 import ziomicroservices.challenge.service.ChallengeService
+import zio.http.HttpAppMiddleware.cors
+import zio.http.Header.{AccessControlAllowMethods, AccessControlAllowOrigin, Origin}
+import zio.http.internal.middlewares.Cors.CorsConfig
 
 object ChallengeController:
   def apply(): Http[ChallengeService, Throwable, Request, Response] =
@@ -23,5 +26,11 @@ object ChallengeController:
             case Right(u) =>
               ChallengeService.checkAttempt(u).map(out => Response.json(out.toJson))
         } yield r).orDie
-    }
+    } @@ cors(CorsConfig(
+      allowedOrigin = {
+        case origin@Origin.Value(_, host, _) => Some(AccessControlAllowOrigin.All)
+        case _ => Some(AccessControlAllowOrigin.All)
+      },
+      allowedMethods = AccessControlAllowMethods(Method.PUT, Method.DELETE, Method.GET, Method.POST),
+    ) )
       
