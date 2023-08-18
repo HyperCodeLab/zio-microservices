@@ -18,4 +18,5 @@ object ChallengeAttemptTest extends ZIOSpecDefault {
       }
     )
   }
+  
 }

@@ -7,11 +7,12 @@ import ziomicroservices.challenge.model._
 
 object InMemoryChallengeAttemptRepositoryTest extends ZIOSpecDefault {
 
+  TestRandom.setSeed(42L)
+
   def spec = {
     suite("InMemory Challenge Attempt Repository")(
       test("Repository should save the entity") {
         val entity = ChallengeAttempt(User("TestUser"), Challenge(2, 2), 4)
-        TestRandom.setSeed(42L)
         for {
           repository <- ZIO.service[InMemoryChallengeAttemptRepository]
           id <- repository.save(entity)
@@ -29,7 +30,6 @@ object InMemoryChallengeAttemptRepositoryTest extends ZIOSpecDefault {
         val entity1 = ChallengeAttempt(User("TestUser"), Challenge(2, 2), 4)
         val entity2 = ChallengeAttempt(User("TestUser"), Challenge(2, 3), 6)
         val entity3 = ChallengeAttempt(User("TestUser2"), Challenge(2, 3), 6)
-
         for {
           repository <- ZIO.service[InMemoryChallengeAttemptRepository]
           id1 <- repository.save(entity1)
@@ -43,4 +43,5 @@ object InMemoryChallengeAttemptRepositoryTest extends ZIOSpecDefault {
   }.provideLayer(
     InMemoryChallengeAttemptRepository.layer
   )
+
 }

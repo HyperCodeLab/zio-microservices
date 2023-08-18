@@ -12,12 +12,13 @@ import zio.http.internal.middlewares.Cors.CorsConfig
 object ChallengeController:
   def apply(): Http[ChallengeService, Throwable, Request, Response] =
     Http.collectZIO[Request] {
-      case Method.GET -> Root / "challenges" / "random" => {
+      
+      case Method.GET -> Root / "challenges" / "random" => 
         ChallengeService.createRandomMultiplication().map(response => Response.json(response.toJson))
-      }
+
       case req@(Method.POST -> Root / "challenges" / "attempt") => (
         for {
-          u <- req.body.asString.map(_.fromJson[ChallengeAttempt]) // Try to parse the request
+          u <- req.body.asString.map(_.fromJson[ChallengeAttempt]) 
           r <- u match
             case Left(e) =>
               ZIO
@@ -26,12 +27,12 @@ object ChallengeController:
             case Right(u) =>
               ChallengeService.checkAttempt(u).map(out => Response.json(out.toJson))
         } yield r).orDie
+
       case Method.GET -> Root / "challenges" /"results" / id =>
         ChallengeService.getAttemptById(id).map(out => Response.json(out.toJson)).orDie
       
       case Method.GET -> Root / "challenges" /"users" / userAlias =>
         ChallengeService.getAttemptsByUser(userAlias).map(out => Response.json(out.toJson)).orDie
-
 
     } @@ cors(CorsConfig(
       allowedOrigin = {

@@ -44,4 +44,5 @@ object ChallengeServiceImplTest extends ZIOSpecDefault {
     RandomGeneratorServiceImpl.layer,
     InMemoryChallengeAttemptRepository.layer
   )
+  
 }

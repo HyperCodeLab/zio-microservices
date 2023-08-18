@@ -11,28 +11,26 @@ import ziomicroservices.challenge.service.{ChallengeServiceImpl, RandomGenerator
 
 object ChallengeControllerTest extends ZIOSpecDefault {
 
+  TestRandom.setSeed(42L)
+  val app = ChallengeController()
+
   def spec = {
     suite("Test Challenge Controller")(
       test("Controller should return right entity back when requested new challenge") {
-        TestRandom.setSeed(42L)
-        val app = ChallengeController()
         val req = Request.get(URL(Root  / "challenges" / "random"))
         assertZIO(app.runZIO(req).map(x => x.body))(equalTo(Response.json(Challenge(3, 8).toJson).body))
       },
       test("Controller should return True when validating challenge attempt") {
-        val app = ChallengeController()
         val req = Request.post(Body.fromString("""{"user":{"alias":"TestUser"},"challenge":{"valueA":2,"valueB":2},"resultAttempt":4}"""), 
             URL(Root  / "challenges" / "attempt"))
         assertZIO(app.runZIO(req).map(x => x.body))(equalTo(Response.json("true").body))
       },
       test("Controller should return False when validating challenge attempt") {
-        val app = ChallengeController()
         val req = Request.post(Body.fromString("""{"user":{"alias":"TestUser"},"challenge":{"valueA":2,"valueB":2},"resultAttempt":5}"""), 
             URL(Root  / "challenges" / "attempt"))
         assertZIO(app.runZIO(req).map(x => x.body))(equalTo(Response.json("false").body))
       },
       test("Get result of a previous attempt") {
-        val app = ChallengeController()
         val entity = ChallengeAttempt(User("TestUser"), Challenge(2, 2), 4)
         for {
           repo <- ZIO.service[ChallengeAttemptRepository]
@@ -41,7 +39,6 @@ object ChallengeControllerTest extends ZIOSpecDefault {
         } yield assert(response)(equalTo(Response.json(entity.toJson).body)) 
       },
       test("Get attempts of users") {
-        val app = ChallengeController()
         val entity = ChallengeAttempt(User("TestUser"), Challenge(2, 2), 4)
         for {
           repo <- ZIO.service[ChallengeAttemptRepository]
@@ -54,4 +51,5 @@ object ChallengeControllerTest extends ZIOSpecDefault {
       ChallengeServiceImpl.layer,
       InMemoryChallengeAttemptRepository.layer
     )
+    
 }

@@ -13,7 +13,9 @@ object RandomGeneratorServiceImplTest extends ZIOSpecDefault {
           _ <- TestRandom.setSeed(42L)
           mul <- RandomGeneratorServiceImpl().generateRandomFactor()
         } yield assert(mul)(equalTo(9))
-      })
+      }
+    )
   }
+
 }
 

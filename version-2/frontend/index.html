@@ -9,7 +9,7 @@
             <form id="attempt-form" action="#" method="POST">
                 <div class="form-group">
                     <label for="result-attempt">Result?</label>
-                    <input type="text" name="result-attempt" id="result-attempt" class="form-control">
+                    <input type="text" name="result-attempt" id="result-attempt" class="form-control" autofocus>
                 </div>
                 <span class="input-group-append">
                     <button type="submit" class="btn btn-light" data-name="register" onclick="formSubmit(event)">Check!</button>
@@ -51,7 +51,6 @@
                 });
             }
 
-
             function formSubmit(e){
                 e.preventDefault();
 
@@ -66,23 +65,21 @@
                     dataType: "json",
                     async: false,
                     success: function(result){
-                        console.log(result);
                         if (result == true) {
                         }
                     }
                     });
                 
+                document.getElementById("attempt-form").reset();   
                 getData();
                 updateStats();
             }
-
             function updateStats() {
                 $.ajax({
                     url: SERVER_URL + '/challenges/users/'+name,
                 }).then(function(data) {
                     $('#user-results').empty();
                     data.forEach(function(row) {
-                        console.log(row)
                         $('#user-results').append(
                             '<tr>' +
                                 '<td>' + row.challenge.valueA + ' X ' + row.challenge.valueB + '</td>' +
@@ -92,11 +89,7 @@
                     });
                 });
             }
-
             getData();
-
         </script>
-
     </body>
-
 </html>
