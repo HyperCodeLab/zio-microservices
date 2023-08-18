@@ -4,6 +4,7 @@ import zio.http.Server
 import zio.{Scope, ZIO, ZIOAppArgs, ZIOAppDefault}
 import ziomicroservices.challenge.controller.ChallengeController
 import ziomicroservices.challenge.service.{ChallengeServiceImpl, RandomGeneratorServiceImpl}
+import ziomicroservices.challenge.repository.{InMemoryChallengeAttemptRepository}
 
 object Main extends ZIOAppDefault {
   def run: ZIO[Environment with ZIOAppArgs with Scope, Throwable, Any] =
@@ -15,6 +16,7 @@ object Main extends ZIOAppDefault {
       .provide(
         Server.defaultWithPort(8080),
         RandomGeneratorServiceImpl.layer,
-        ChallengeServiceImpl.layer
+        ChallengeServiceImpl.layer,
+        InMemoryChallengeAttemptRepository.layer
       )
 }

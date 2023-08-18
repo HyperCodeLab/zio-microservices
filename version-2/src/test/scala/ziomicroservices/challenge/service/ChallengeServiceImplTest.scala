@@ -4,6 +4,7 @@ import zio._
 import zio.test._
 import zio.test.Assertion.equalTo
 import ziomicroservices.challenge.model._
+import ziomicroservices.challenge.repository._
 
 object ChallengeServiceImplTest extends ZIOSpecDefault {
 
@@ -13,23 +14,34 @@ object ChallengeServiceImplTest extends ZIOSpecDefault {
         for {
           _ <- TestRandom.setSeed(42L)
           randomService <- ZIO.service[RandomGeneratorService]
-          challenge <- ChallengeServiceImpl(randomService).createRandomMultiplication()
+          challenge <- ChallengeServiceImpl(randomService, null).createRandomMultiplication()
         } yield assert(challenge)(equalTo(Challenge(9, 4)))
       },
       test("ChallengeService should check a ChallengeAttempt and yield true") {
         val challenge = ChallengeAttempt(User("TestUser"), Challenge(2, 3), 6)
         for {
-          check <- ChallengeServiceImpl(null).checkAttempt(challenge)
+          repo <- ZIO.service[ChallengeAttemptRepository]
+          check <- ChallengeServiceImpl(null, repo).checkAttempt(challenge)
         } yield assert(check)(equalTo(true))
       },
       test("ChallengeService should check a ChallengeAttempt and yield false") {
         val challenge = ChallengeAttempt(User("TestUser"), Challenge(2, 3), 5)
         for {
-          check <- ChallengeServiceImpl(null).checkAttempt(challenge)
+          repo <- ZIO.service[ChallengeAttemptRepository]
+          check <- ChallengeServiceImpl(null, repo).checkAttempt(challenge)
         } yield assert(check)(equalTo(false))
+      },
+      test("ChallengeService should return an existing Attempt back") {
+        val entity = ChallengeAttempt(User("TestUser"), Challenge(2, 2), 4)
+        for {
+          repo <- ZIO.service[ChallengeAttemptRepository]
+          id <- repo.save(entity) 
+          expectedEntity <- ChallengeServiceImpl(null, repo).getAttemptById(id)
+        } yield assert(entity)(equalTo(expectedEntity))
       }
-      )
-  }.provideLayer(
-    RandomGeneratorServiceImpl.layer
+    )
+  }.provide(
+    RandomGeneratorServiceImpl.layer,
+    InMemoryChallengeAttemptRepository.layer
   )
 }

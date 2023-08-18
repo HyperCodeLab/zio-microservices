@@ -8,7 +8,7 @@ lazy val root = (project in file("."))
   .settings(
     name := "ZioMicroServices",
     testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework"),
-    Test / fork := true
+    Test / fork := false
   )
 
 libraryDependencies ++= Seq(

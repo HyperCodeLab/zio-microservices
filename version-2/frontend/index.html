@@ -17,21 +17,37 @@
             </form>
         </div>
         <div>
-            Correct:  <span id = "correct">0</span>
+            <h2> User Stats </h2>
+            <table id = "stats" style=width:100%">
+                <tr>
+                    <th>Challenge</th>
+                    <th>Attempt</th>
+                    <th>Correct?</th>
+                </tr>
+                <tbody id="user-results"></tbody>
+            </table>
         </div>
-
-
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.2/jquery.min.js" integrity="sha512-tWHlutFnuG0C6nQRlpvrEhE4QpkG1nn2MOUMWmUeRePl4e3Aki0VB6W1v3oLjFtd0hVOtRQ9PHpSfN6u6/QXkQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
         <script>
+
+            var name = "";
+
+            $("document").ready( function () {
+                name = prompt("Please, enter your name", "")
+            })
+
             var SERVER_URL = "http://localhost:8080";
 
-            var count = 0;
+            var elementA = 0;
+            var elementB = 0;
 
             function getData() {
                 $.get(SERVER_URL + "/challenges/random", (data, status) => {
-                    $("#elementA").text(data['valueA'])
-                    $("#elementB").text(data['valueB'])
+                    elementA = data['valueA'];
+                    elementB = data['valueB'];
+                    $("#elementA").text(elementA)
+                    $("#elementB").text(elementB)
                 });
             }
 
@@ -40,7 +56,7 @@
                 e.preventDefault();
 
                 var attempt = $('#result-attempt').val();
-                var data = { user: { alias: "Test"}, challenge: {valueA: d['valueA'], valueB: d['valueB']}, resultAttempt: parseInt(attempt)};
+                var data = { user: { alias: name}, challenge: {valueA: elementA, valueB: elementB}, resultAttempt: parseInt(attempt)};
 
                 $.ajax({
                     url: SERVER_URL + '/challenges/attempt',
@@ -52,13 +68,29 @@
                     success: function(result){
                         console.log(result);
                         if (result == true) {
-                            count += 1;
                         }
                     }
                     });
                 
-                $('#correct').html(count);
                 getData();
+                updateStats();
+            }
+
+            function updateStats() {
+                $.ajax({
+                    url: SERVER_URL + '/challenges/users/'+name,
+                }).then(function(data) {
+                    $('#user-results').empty();
+                    data.forEach(function(row) {
+                        console.log(row)
+                        $('#user-results').append(
+                            '<tr>' +
+                                '<td>' + row.challenge.valueA + ' X ' + row.challenge.valueB + '</td>' +
+                                '<td>' + row.resultAttempt + '</td>' +
+                                '<td>' + (row.check=== true ? 'Yes' : 'Nn') + '</td>' +
+                            '</tr>')
+                    });
+                });
             }
 
             getData();

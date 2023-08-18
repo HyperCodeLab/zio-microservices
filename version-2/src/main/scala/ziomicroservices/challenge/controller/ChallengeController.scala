@@ -26,6 +26,13 @@ object ChallengeController:
             case Right(u) =>
               ChallengeService.checkAttempt(u).map(out => Response.json(out.toJson))
         } yield r).orDie
+      case Method.GET -> Root / "challenges" /"results" / id =>
+        ChallengeService.getAttemptById(id).map(out => Response.json(out.toJson)).orDie
+      
+      case Method.GET -> Root / "challenges" /"users" / userAlias =>
+        ChallengeService.getAttemptsByUser(userAlias).map(out => Response.json(out.toJson)).orDie
+
+
     } @@ cors(CorsConfig(
       allowedOrigin = {
         case origin@Origin.Value(_, host, _) => Some(AccessControlAllowOrigin.All)

@@ -1,12 +1,18 @@
 package ziomicroservices.challenge.service
 
-import zio._
-import ziomicroservices.challenge.model._
+import zio.*
+import ziomicroservices.challenge.model.*
+import ziomicroservices.challenge.repository.ChallengeAttemptRepository
 
-case class ChallengeServiceImpl(randomGeneratorService: RandomGeneratorService) extends ChallengeService:
+case class ChallengeServiceImpl(randomGeneratorService: RandomGeneratorService, caRepo: ChallengeAttemptRepository) extends ChallengeService:
 
   def checkAttempt(attempt: ChallengeAttempt): Task[Boolean] = {
-    ZIO.succeed(attempt.challenge.valueA * attempt.challenge.valueB == attempt.resultAttempt)
+    attempt.check = Some(attempt.challenge.valueA * attempt.challenge.valueB == attempt.resultAttempt)
+
+    for {
+      _ <- ZIO.logInfo(s"Attempt ${attempt}")
+      _ <- caRepo.save(attempt)
+    } yield (attempt.check.get)
   }
 
   def createRandomMultiplication(): ZIO[Any, Nothing, Challenge] = {
@@ -16,10 +22,28 @@ case class ChallengeServiceImpl(randomGeneratorService: RandomGeneratorService) 
     } yield (Challenge(id1, id2))
   }
 
+  def getAttemptById(id: String): Task[ChallengeAttempt] = {
+    caRepo.find(id)
+      .map {
+        case Some(attempt) => attempt
+        case _ => ???
+      }
+  }
+
+    def getAttemptsByUser(userAlias: String): Task[List[ChallengeAttempt]] = {
+      for {
+        attemps <- caRepo.findAttemptsByUser(userAlias)
+        _ <- ZIO.logInfo(s"Attempts for ${userAlias}: ${attemps}")
+      } yield (attemps)
+    }
+
+
+
 object ChallengeServiceImpl {
-  def layer: ZLayer[RandomGeneratorService, Nothing, ChallengeServiceImpl] = ZLayer {
+  def layer: ZLayer[RandomGeneratorService & ChallengeAttemptRepository, Nothing, ChallengeServiceImpl] = ZLayer {
     for {
       generator <- ZIO.service[RandomGeneratorService]
-    } yield ChallengeServiceImpl(generator)
+      repo <- ZIO.service[ChallengeAttemptRepository]
+    } yield ChallengeServiceImpl(generator, repo)
   }
 }

@@ -7,8 +7,9 @@ import zio.json._
 case class ChallengeAttempt(
         user: User,
         challenge: Challenge,
-        resultAttempt: Int
-        )
+        resultAttempt: Int, 
+        var check: Option[Boolean] = None
+        ) 
 
 object ChallengeAttempt:
   given JsonEncoder[ChallengeAttempt] = DeriveJsonEncoder.gen[ChallengeAttempt]
